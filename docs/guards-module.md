@@ -84,6 +84,8 @@ Where the plan was silent or the build chose otherwise.
 
 **Evaluation**
 
+- `check(condition, host, observer?)` is the evaluator and returns `{ holds, errors }`; it builds no trace. `evaluate` is `check` plus an observer that keeps what it hears (`enter`, `error`, `leave`) as a tree, so the semantics are written once and the tracing is in a bundle only when `evaluate` is imported. kdlt calls `check`: it needs the answer and the errors, never the tree. Under `check` a word that wraps conditions receives a bare `{ holds, condition }` for each; under `evaluate` it receives the full trace. One table of conditions is run through both and they must agree on `holds` and on every error.
+
 - `evaluate` never throws for what a condition says. What goes wrong is in the node's `errors`
   (`{ message, loc? }`) and the node does not hold; `errors(trace)` lists every one, depth first.
   This is how kdlet keeps its messages and positions.

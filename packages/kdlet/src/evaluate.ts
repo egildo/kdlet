@@ -7,7 +7,7 @@
  * reports them all. A document that did not read cleanly is not evaluated.
  */
 
-import { errors as guardErrors, evaluate as evaluateGuard } from 'kdlet-guards';
+import { check } from 'kdlet-guards';
 import type { Condition, GuardFn as GuardCode, Host } from 'kdlet-guards';
 import type {
   Document,
@@ -167,9 +167,9 @@ export function evaluate(document: Document, options: EvaluateOptions): Evaluati
   const bodyOf = (body: Condition[]): Condition => (body.length === 1 ? body[0] : { all: body });
 
   const holds = (name: Name, scope: Scope): boolean => {
-    const trace = evaluateGuard({ guard: name.name, loc: name.loc }, hostOf(scope));
-    for (const e of guardErrors(trace)) err(e.message, e.loc ?? name.loc);
-    return trace.holds;
+    const answer = check({ guard: name.name, loc: name.loc }, hostOf(scope));
+    for (const e of answer.errors) err(e.message, e.loc ?? name.loc);
+    return answer.holds;
   };
 
   // ---- the walk -------------------------------------------------------------------

@@ -1,3 +1,4 @@
+export { check } from './check.js';
 export { evaluate, errors, problems } from './evaluate.js';
 export type {
   Condition,

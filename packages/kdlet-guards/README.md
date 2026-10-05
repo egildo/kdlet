@@ -35,7 +35,8 @@ all {
 
 | Export | What it does |
 |---|---|
-| `evaluate(condition, host)` | A condition to a trace. Never throws for what the condition says; an error is in the trace |
+| `check(condition, host)` | A condition to `{ holds, errors }`, with no trace. The semantics live here; kdlet uses it, so a bundle that only checks does not carry the tracing |
+| `evaluate(condition, host)` | `check` with a trace. Never throws for what the condition says; an error is in the trace |
 | `errors(trace)` | Every error of a trace, with its position when the condition had one |
 | `problems(condition, host)` | An unknown guard or word, a word's own complaint, a cycle |
 | `readBody`, `readGuard`, `writeGuard` (from `kdlet-guards/kdl`) | KDL to conditions with positions and problems, and a condition to KDL text |

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1 — 2026-10-06
+
+- `kdlet-guards`: `check(condition, host)` answers `{ holds, errors }` without building a trace, and is now the one evaluator; `evaluate` wraps it and adds the trace. `kdlet` uses `check`, so a bundle of `kdlet`'s `evaluate` is about 450 characters smaller (about 115 gzipped). Nothing a file or a host can say changes.
+
 ## 0.1.0 — 2026-10-05
 
 The first version.
