@@ -1,0 +1,21 @@
+{
+  "name": "kdlet-workspace",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm build && pnpm -r test"
+  },
+  "devDependencies": {
+    "@types/node": "^24.1.0",
+    "tsup": "^8.4.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  },
+  "license": "MIT",
+  "author": "Egildo Tagliareni <egildo@tagliareni.it>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://codeberg.org/egildo/kdlet.git"
+  }
+}

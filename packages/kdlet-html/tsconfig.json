@@ -1,0 +1,7 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "paths": { "kdlet": ["../kdlet/src/index.ts"] }
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"]
+}

@@ -1,0 +1,51 @@
+{
+  "name": "kdlet-html",
+  "version": "0.1.0",
+  "description": "The HTML renderer for kdlet: a vocabulary and a function that writes a kdlet tree as an HTML string",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "test": "node --import tsx/esm --test 'test/**/*.test.ts'",
+    "build": "tsup src/index.ts --format esm --dts --clean --tsconfig tsconfig.build.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "prepack": "pnpm run build"
+  },
+  "keywords": [
+    "kdl",
+    "kdlet",
+    "template",
+    "html",
+    "pug"
+  ],
+  "author": "Egildo Tagliareni <egildo@tagliareni.it>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://codeberg.org/egildo/kdlet.git",
+    "directory": "packages/kdlet-html"
+  },
+  "files": [
+    "dist/"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "kdlet": "workspace:^"
+  },
+  "homepage": "https://codeberg.org/egildo/kdlet",
+  "bugs": {
+    "url": "https://codeberg.org/egildo/kdlet/issues"
+  },
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  }
+}

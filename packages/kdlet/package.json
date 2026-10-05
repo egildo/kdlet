@@ -1,0 +1,52 @@
+{
+  "name": "kdlet",
+  "version": "0.1.0",
+  "description": "A small template language written in KDL: data, repetition and named conditions, with renderers that bring their own words",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "test": "node --import tsx/esm --test 'test/**/*.test.ts'",
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "prepack": "pnpm run build"
+  },
+  "keywords": [
+    "kdl",
+    "template",
+    "templating",
+    "template-engine",
+    "pug"
+  ],
+  "author": "Egildo Tagliareni <egildo@tagliareni.it>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://codeberg.org/egildo/kdlet.git",
+    "directory": "packages/kdlet"
+  },
+  "files": [
+    "dist/"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@bgotink/kdl": "^0.4.0",
+    "kdlet-guards": "workspace:^"
+  },
+  "homepage": "https://codeberg.org/egildo/kdlet",
+  "bugs": {
+    "url": "https://codeberg.org/egildo/kdlet/issues"
+  },
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  }
+}

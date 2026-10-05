@@ -1,0 +1,10 @@
+BOX Table direction=ROWS {
+    TRACKS {
+        STRETCH
+        SIZE 40
+        STRETCH 1.5
+    }
+    BOX Cell {
+        PLACE row=0 column=1
+    }
+}

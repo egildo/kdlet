@@ -1,0 +1,10 @@
+guard on { is (input)state on }
+
+BOX Toggle direction=ROW gap=(literal)8 {
+    BOX Track direction=ROW align=START width=(literal)40 {
+        EDGES left right
+        when on align=END { EDGES left right inner }
+        BOX Thumb width=(literal)20
+    }
+    TEXT Caption label=(input)label
+}
