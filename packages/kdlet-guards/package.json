@@ -1,6 +1,6 @@
 {
   "name": "kdlet-guards",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A small condition language as plain data: named conditions, is, has, not, all and any, host guards and registered words, with a reader and writer for KDL",
   "type": "module",
   "main": "dist/index.js",
