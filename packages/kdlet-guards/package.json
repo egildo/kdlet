@@ -21,6 +21,17 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "prepack": "pnpm run build"
   },
+  "peerDependencies": {
+    "@bgotink/kdl": "^0.4.0"
+  },
+  "peerDependenciesMeta": {
+    "@bgotink/kdl": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@bgotink/kdl": "^0.4.0"
+  },
   "keywords": [
     "kdl",
     "kdlet",
@@ -40,9 +51,6 @@
   ],
   "engines": {
     "node": ">=20.0.0"
-  },
-  "dependencies": {
-    "@bgotink/kdl": "^0.4.0"
   },
   "homepage": "https://codeberg.org/egildo/kdlet",
   "bugs": {

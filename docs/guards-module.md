@@ -17,7 +17,7 @@ would drift; one module serves both.
 |---|---|
 | the guard model (`GuardWord`, `Ref`, `Value`, `Name`) as plain JSON-serialisable data, positions optional | scopes of `define` and `each`, and which guards a body can see |
 | the evaluator: `is`, `has`, `not`, `all`, `any`, named guards and their cycle check, host guards | what an item in scope is (`(input)`, `(post)`) — kdlet's resolver |
-| the KDL reader of a guard body (`kdlet-guards/kdl`, on `@bgotink/kdl`) | kdlet's file reader, which calls it |
+| the KDL reader of a guard body (`kdlet-guards/kdl`, on `@bgotink/kdl`, an optional peer dependency that only this entry needs) | kdlet's file reader, which calls it |
 
 ## 3 · The module
 

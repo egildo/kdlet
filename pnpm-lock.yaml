@@ -31,7 +31,7 @@ importers:
         version: link:../kdlet-guards
 
   packages/kdlet-guards:
-    dependencies:
+    devDependencies:
       '@bgotink/kdl':
         specifier: ^0.4.0
         version: 0.4.0
