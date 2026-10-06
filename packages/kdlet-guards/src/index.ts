@@ -1,4 +1,5 @@
 export { check } from './check.js';
+export { UNKNOWN } from './model.js';
 export { evaluate, errors, problems } from './evaluate.js';
 export type {
   Condition,

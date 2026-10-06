@@ -16,9 +16,10 @@ function tracer(): Observer {
   const observer: Observer = {
     enter: (condition) => void open.push({ holds: false, condition }),
     error: (error) => void (open[open.length - 1].errors ??= []).push(error),
-    leave(holds, detail) {
+    leave(holds, detail, unknown) {
       const node = open.pop() as Trace;
       node.holds = holds;
+      if (unknown) node.unknown = true;
       if (detail !== undefined) node.detail = detail;
       const parent = open[open.length - 1];
       if (parent) (parent.children ??= []).push(node);

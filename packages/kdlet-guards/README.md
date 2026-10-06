@@ -22,6 +22,8 @@ const trace = evaluate(condition, {
 trace.holds; // true or false; trace.children holds each node's own result
 ```
 
+A host may answer `UNKNOWN` (exported by the package) for a reference that is not yet known; `undefined` still means there is nothing there. A condition that depends on it is neither true nor false: `holds` is `false` and the trace, and the result of `check`, carry `unknown: true`, by the three-valued tables of Kleene (SQL's `NULL` uses them): `not` leaves it, `all` and `any` give way to a child that settles them. A host that never answers `UNKNOWN` sees no change.
+
 `kdlet-guards/kdl` reads a guard's body from [`@bgotink/kdl`](https://github.com/bgotink/kdl) nodes, with positions and problems, and writes a condition back as KDL text:
 
 ```kdl

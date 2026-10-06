@@ -84,12 +84,12 @@ Where the plan was silent or the build chose otherwise.
 
 **Evaluation**
 
-- `check(condition, host, observer?)` is the evaluator and returns `{ holds, errors }`; it builds no trace. `evaluate` is `check` plus an observer that keeps what it hears (`enter`, `error`, `leave`) as a tree, so the semantics are written once and the tracing is in a bundle only when `evaluate` is imported. kdlt calls `check`: it needs the answer and the errors, never the tree. Under `check` a word that wraps conditions receives a bare `{ holds, condition }` for each; under `evaluate` it receives the full trace. One table of conditions is run through both and they must agree on `holds` and on every error.
+- `check(condition, host, observer?)` is the evaluator and returns `{ holds, errors }` (and `unknown`, below); it builds no trace. `evaluate` is `check` plus an observer that keeps what it hears (`enter`, `error`, `leave`) as a tree, so the semantics are written once and the tracing is in a bundle only when `evaluate` is imported. kdlt calls `check`: it needs the answer and the errors, never the tree. Under `check` a word that wraps conditions receives a bare `{ holds, condition }` for each; under `evaluate` it receives the full trace. One table of conditions is run through both and they must agree on `holds` and on every error.
 
 - `evaluate` never throws for what a condition says. What goes wrong is in the node's `errors`
   (`{ message, loc? }`) and the node does not hold; `errors(trace)` lists every one, depth first.
   This is how kdlet keeps its messages and positions.
-- A guard supplied by code is `(host) => boolean | { error: string }`. Anything else it returns is
+- A guard supplied by code is `(host) => boolean | 'unknown' | { error: string }`. Anything else it returns is
   an error in the trace. kdlet answers a guard its file declares and the host never supplied with
   `{ error }`.
 - `all` stops at the first child that fails and `any` at the first that holds, so the trace has no
@@ -99,6 +99,9 @@ Where the plan was silent or the build chose otherwise.
 - `problems` returns text and does not look at positions. kdlet does not call it: its reader and
   evaluator already say the same things, with their lines and columns.
 - A cycle is found where the loop closes, by name, within one `host.guards`. A word that evaluates again with the same `host` object joins the check; one that builds a new host starts its own.
+- **The unknown.** A reference can be not yet known, which is not the same as absent. `resolve` may return `UNKNOWN`, a unique symbol the module exports. `undefined` still means absent, `Host` has no new field, and `missing` is untouched. A condition then has three answers, by Kleene's strong three-valued logic (SQL's `NULL` uses the same tables): true, false, and unknown. Unknown is a flag on a false: `check` returns `{ holds, errors, unknown?: true }`, a `Trace` has `unknown?: true`, a word's `test` may return `{ holds, unknown?: true, detail? }` and a guard function may answer `'unknown'`. When `unknown` is set, `holds` is false, so a reader of `holds` alone takes unknown as false, as SQL's `WHERE` does. The flag is set only when it is true: a host that never says unknown gets the same types and the same values as before, trace keys included. kdlet never says it: its resolver answers a value or `undefined`, its host guards answer `boolean`, and it registers no word.
+- The tables. `is`: an `UNKNOWN` on the left is unknown; a known left with some right equal is true; otherwise some right `UNKNOWN` makes it unknown, and else it is false. An absent operand is still false, with `missing` as before. `has` of `UNKNOWN` is unknown. `not` swaps true and false and leaves unknown. `all` is false if any child is false, otherwise unknown if any is unknown, otherwise true; `any` is true if any child is true, otherwise unknown if any is unknown, otherwise false. `all` still stops at its first false child and `any` at its first true one; an unknown child does not stop the walk. A `guard` answers as its body or its function does. A word with a body receives its children's traces, with `unknown` where it applies, and answers as it decides; the module defines no word.
+- An error wins over the unknown: a node with an error of its own does not hold and is not unknown. The nodes around it answer by the tables, so `any` of an unknown and an error is unknown, and the error is in the trace. `problems` is unchanged, and so are the KDL reader and writer: `UNKNOWN` is a run-time answer of the host and is never written in a file.
 - A value that is not a condition (`null`, an object with none of the words) is an error in the trace, not a throw. A guard found by name is
   one of that host's `guards` and nothing on `Object.prototype`.
 

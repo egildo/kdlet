@@ -32,6 +32,12 @@ export interface Ref {
   field: string;
 }
 
+/**
+ * What `resolve` may answer for a reference that is not yet known, as against `undefined`, which is a reference
+ * with nothing there. A condition that reads it is neither true nor false: its trace says `unknown`.
+ */
+export const UNKNOWN: unique symbol = Symbol('UNKNOWN');
+
 /** A plain value, or a reference the host resolves. */
 export type Operand = Primitive | { ref: Ref; loc?: Loc };
 
@@ -51,13 +57,13 @@ export type Condition =
   | { word: string; args?: Json; body?: Condition[]; loc?: Loc };
 
 /**
- * A guard supplied by code. It answers true or false, or `{ error }` to say why it cannot answer; the
- * evaluation records that and takes the guard as false.
+ * A guard supplied by code. It answers true or false, `'unknown'` when it cannot yet tell, or `{ error }` to say
+ * why it cannot answer; the evaluation records that and takes the guard as false.
  */
-export type GuardFn = (host: Host) => boolean | { error: string };
+export type GuardFn = (host: Host) => boolean | 'unknown' | { error: string };
 
 export interface Host {
-  /** What a reference stands for; `undefined` when there is nothing there. `null` is a value. */
+  /** What a reference stands for; `undefined` when there is nothing there, `UNKNOWN` when it is not yet known. `null` is a value. */
   resolve(ref: Ref): unknown;
   /** Named guards: a condition, or a function of the host. */
   guards?: Record<string, Condition | GuardFn>;
@@ -71,8 +77,11 @@ export interface Host {
 export interface Word {
   /** What is wrong with this use of the word, as text, or nothing. Called by `problems`. */
   read?(args: Json, body: Condition[] | undefined): string | undefined;
-  /** `args` is `null` when the condition gave none. `body` holds the trace of every wrapped condition, all of them evaluated. */
-  test(args: Json, body: Trace[] | undefined, host: Host): { holds: boolean; detail?: Json };
+  /**
+   * `args` is `null` when the condition gave none. `body` holds the trace of every wrapped condition, all of them
+   * evaluated, each with `unknown` where it applies. `unknown` set means `holds` is false.
+   */
+  test(args: Json, body: Trace[] | undefined, host: Host): { holds: boolean; unknown?: true; detail?: Json };
 }
 
 export interface GuardError {
@@ -80,9 +89,14 @@ export interface GuardError {
   loc?: Loc;
 }
 
-/** What an evaluation found out about one condition: whether it holds, and how, node by node. */
+/**
+ * What an evaluation found out about one condition: whether it holds, and how, node by node. A node is true
+ * (`holds`), false, or unknown, which is false with `unknown` set.
+ */
 export interface Trace {
   holds: boolean;
+  /** The answer depends on a reference the host said is not yet known. Then `holds` is false. */
+  unknown?: true;
   condition: Condition;
   /**
    * The traces of the conditions evaluated under this one, in order. `all` stops at the first child that

@@ -1,0 +1,724 @@
+{
+  "error": {
+    "is, equal": {
+      "check": {
+        "holds": true,
+        "errors": []
+      },
+      "trace": {
+        "holds": true
+      }
+    },
+    "is, different": {
+      "check": {
+        "holds": false,
+        "errors": []
+      },
+      "trace": {
+        "holds": false
+      }
+    },
+    "is, absent left": {
+      "check": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "(input)ghost has no value here; ask with \"has\" before comparing it",
+            "loc": {
+              "line": 1,
+              "column": 5
+            }
+          }
+        ]
+      },
+      "trace": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "(input)ghost has no value here; ask with \"has\" before comparing it",
+            "loc": {
+              "line": 1,
+              "column": 5
+            }
+          }
+        ]
+      }
+    },
+    "is, absent right": {
+      "check": {
+        "holds": true,
+        "errors": [
+          {
+            "message": "(input)ghost has no value here; ask with \"has\" before comparing it",
+            "loc": {
+              "line": 1,
+              "column": 5
+            }
+          }
+        ]
+      },
+      "trace": {
+        "holds": true,
+        "errors": [
+          {
+            "message": "(input)ghost has no value here; ask with \"has\" before comparing it",
+            "loc": {
+              "line": 1,
+              "column": 5
+            }
+          }
+        ]
+      }
+    },
+    "is, null is a value": {
+      "check": {
+        "holds": true,
+        "errors": []
+      },
+      "trace": {
+        "holds": true
+      }
+    },
+    "has, zero": {
+      "check": {
+        "holds": true,
+        "errors": []
+      },
+      "trace": {
+        "holds": true
+      }
+    },
+    "has, null, empty list, empty text": {
+      "check": {
+        "holds": false,
+        "errors": []
+      },
+      "trace": {
+        "holds": false,
+        "children": [
+          {
+            "holds": false
+          }
+        ]
+      }
+    },
+    "not": {
+      "check": {
+        "holds": true,
+        "errors": []
+      },
+      "trace": {
+        "holds": true,
+        "children": [
+          {
+            "holds": false
+          }
+        ]
+      }
+    },
+    "all stops at the first failure": {
+      "check": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "no guard named \"ghost\""
+          }
+        ]
+      },
+      "trace": {
+        "holds": false,
+        "children": [
+          {
+            "holds": true
+          },
+          {
+            "holds": false,
+            "errors": [
+              {
+                "message": "no guard named \"ghost\""
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "any stops at the first success": {
+      "check": {
+        "holds": true,
+        "errors": [
+          {
+            "message": "no guard named \"nope\""
+          }
+        ]
+      },
+      "trace": {
+        "holds": true,
+        "children": [
+          {
+            "holds": false,
+            "errors": [
+              {
+                "message": "no guard named \"nope\""
+              }
+            ]
+          },
+          {
+            "holds": true
+          }
+        ]
+      }
+    },
+    "all of nothing, any of nothing": {
+      "check": {
+        "holds": false,
+        "errors": []
+      },
+      "trace": {
+        "holds": false,
+        "children": [
+          {
+            "holds": true
+          },
+          {
+            "holds": false
+          }
+        ]
+      }
+    },
+    "named guard": {
+      "check": {
+        "holds": true,
+        "errors": []
+      },
+      "trace": {
+        "holds": true,
+        "children": [
+          {
+            "holds": true
+          }
+        ]
+      }
+    },
+    "guard by code": {
+      "check": {
+        "holds": true,
+        "errors": []
+      },
+      "trace": {
+        "holds": true
+      }
+    },
+    "guard by code that says why not": {
+      "check": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "it broke"
+          }
+        ]
+      },
+      "trace": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "it broke"
+          }
+        ]
+      }
+    },
+    "guard by code that answers wrongly": {
+      "check": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "the host's guard \"odd\" returned number, not true or false"
+          }
+        ]
+      },
+      "trace": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "the host's guard \"odd\" returned number, not true or false"
+          }
+        ]
+      }
+    },
+    "unknown guard": {
+      "check": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "no guard named \"ghost\""
+          }
+        ]
+      },
+      "trace": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "no guard named \"ghost\""
+          }
+        ]
+      }
+    },
+    "a guard that depends on itself": {
+      "check": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "guard \"loop\" depends on itself"
+          }
+        ]
+      },
+      "trace": {
+        "holds": false,
+        "children": [
+          {
+            "holds": false,
+            "errors": [
+              {
+                "message": "guard \"loop\" depends on itself"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "a leaf word": {
+      "check": {
+        "holds": true,
+        "errors": []
+      },
+      "trace": {
+        "holds": true,
+        "detail": "seen"
+      }
+    },
+    "a word wrapping conditions": {
+      "check": {
+        "holds": true,
+        "errors": []
+      },
+      "trace": {
+        "holds": true,
+        "children": [
+          {
+            "holds": true,
+            "children": [
+              {
+                "holds": true
+              }
+            ]
+          },
+          {
+            "holds": true,
+            "children": [
+              {
+                "holds": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "a word nobody registered": {
+      "check": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "no word named \"nobody\""
+          }
+        ]
+      },
+      "trace": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "no word named \"nobody\""
+          }
+        ]
+      }
+    },
+    "not a condition": {
+      "check": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "a condition is an object, not null"
+          }
+        ]
+      },
+      "trace": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "a condition is an object, not null"
+          }
+        ]
+      }
+    },
+    "a shapeless condition": {
+      "check": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "not a condition: it has none of is, has, not, all, any, guard or word"
+          }
+        ]
+      },
+      "trace": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "not a condition: it has none of is, has, not, all, any, guard or word"
+          }
+        ]
+      }
+    }
+  },
+  "false": {
+    "is, equal": {
+      "check": {
+        "holds": true,
+        "errors": []
+      },
+      "trace": {
+        "holds": true
+      }
+    },
+    "is, different": {
+      "check": {
+        "holds": false,
+        "errors": []
+      },
+      "trace": {
+        "holds": false
+      }
+    },
+    "is, absent left": {
+      "check": {
+        "holds": false,
+        "errors": []
+      },
+      "trace": {
+        "holds": false
+      }
+    },
+    "is, absent right": {
+      "check": {
+        "holds": true,
+        "errors": []
+      },
+      "trace": {
+        "holds": true
+      }
+    },
+    "is, null is a value": {
+      "check": {
+        "holds": true,
+        "errors": []
+      },
+      "trace": {
+        "holds": true
+      }
+    },
+    "has, zero": {
+      "check": {
+        "holds": true,
+        "errors": []
+      },
+      "trace": {
+        "holds": true
+      }
+    },
+    "has, null, empty list, empty text": {
+      "check": {
+        "holds": false,
+        "errors": []
+      },
+      "trace": {
+        "holds": false,
+        "children": [
+          {
+            "holds": false
+          }
+        ]
+      }
+    },
+    "not": {
+      "check": {
+        "holds": true,
+        "errors": []
+      },
+      "trace": {
+        "holds": true,
+        "children": [
+          {
+            "holds": false
+          }
+        ]
+      }
+    },
+    "all stops at the first failure": {
+      "check": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "no guard named \"ghost\""
+          }
+        ]
+      },
+      "trace": {
+        "holds": false,
+        "children": [
+          {
+            "holds": true
+          },
+          {
+            "holds": false,
+            "errors": [
+              {
+                "message": "no guard named \"ghost\""
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "any stops at the first success": {
+      "check": {
+        "holds": true,
+        "errors": [
+          {
+            "message": "no guard named \"nope\""
+          }
+        ]
+      },
+      "trace": {
+        "holds": true,
+        "children": [
+          {
+            "holds": false,
+            "errors": [
+              {
+                "message": "no guard named \"nope\""
+              }
+            ]
+          },
+          {
+            "holds": true
+          }
+        ]
+      }
+    },
+    "all of nothing, any of nothing": {
+      "check": {
+        "holds": false,
+        "errors": []
+      },
+      "trace": {
+        "holds": false,
+        "children": [
+          {
+            "holds": true
+          },
+          {
+            "holds": false
+          }
+        ]
+      }
+    },
+    "named guard": {
+      "check": {
+        "holds": true,
+        "errors": []
+      },
+      "trace": {
+        "holds": true,
+        "children": [
+          {
+            "holds": true
+          }
+        ]
+      }
+    },
+    "guard by code": {
+      "check": {
+        "holds": true,
+        "errors": []
+      },
+      "trace": {
+        "holds": true
+      }
+    },
+    "guard by code that says why not": {
+      "check": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "it broke"
+          }
+        ]
+      },
+      "trace": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "it broke"
+          }
+        ]
+      }
+    },
+    "guard by code that answers wrongly": {
+      "check": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "the host's guard \"odd\" returned number, not true or false"
+          }
+        ]
+      },
+      "trace": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "the host's guard \"odd\" returned number, not true or false"
+          }
+        ]
+      }
+    },
+    "unknown guard": {
+      "check": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "no guard named \"ghost\""
+          }
+        ]
+      },
+      "trace": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "no guard named \"ghost\""
+          }
+        ]
+      }
+    },
+    "a guard that depends on itself": {
+      "check": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "guard \"loop\" depends on itself"
+          }
+        ]
+      },
+      "trace": {
+        "holds": false,
+        "children": [
+          {
+            "holds": false,
+            "errors": [
+              {
+                "message": "guard \"loop\" depends on itself"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "a leaf word": {
+      "check": {
+        "holds": true,
+        "errors": []
+      },
+      "trace": {
+        "holds": true,
+        "detail": "seen"
+      }
+    },
+    "a word wrapping conditions": {
+      "check": {
+        "holds": true,
+        "errors": []
+      },
+      "trace": {
+        "holds": true,
+        "children": [
+          {
+            "holds": true,
+            "children": [
+              {
+                "holds": true
+              }
+            ]
+          },
+          {
+            "holds": true,
+            "children": [
+              {
+                "holds": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "a word nobody registered": {
+      "check": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "no word named \"nobody\""
+          }
+        ]
+      },
+      "trace": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "no word named \"nobody\""
+          }
+        ]
+      }
+    },
+    "not a condition": {
+      "check": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "a condition is an object, not null"
+          }
+        ]
+      },
+      "trace": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "a condition is an object, not null"
+          }
+        ]
+      }
+    },
+    "a shapeless condition": {
+      "check": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "not a condition: it has none of is, has, not, all, any, guard or word"
+          }
+        ]
+      },
+      "trace": {
+        "holds": false,
+        "errors": [
+          {
+            "message": "not a condition: it has none of is, has, not, all, any, guard or word"
+          }
+        ]
+      }
+    }
+  }
+}

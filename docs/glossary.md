@@ -80,7 +80,7 @@ The named things of kdlet, one entry each. The names are the code's names. Where
 
 **text node** — The HTML renderer's own convention: a child node named `-` holds text among child elements. Not part of the language.
 
-**trace** — What evaluating a condition leaves: for each node of the condition whether it held, what a registered word reported about itself, and what went wrong there. A screen can tick each condition from it. In code: `Trace`.
+**trace** — What evaluating a condition leaves: for each node of the condition whether it held, whether it was unknown (the host answered `UNKNOWN` for a reference not yet known, and the node is then false with `unknown` set), what a registered word reported about itself, and what went wrong there. A screen can tick each condition from it. In code: `Trace`.
 
 **value** — A KDL value, with its tag and position, in the source; plain JSON in the output. In code: `Value`, `Json`.
 

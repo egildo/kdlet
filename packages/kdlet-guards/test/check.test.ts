@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { check, errors, evaluate } from '../src/index.js';
 import type { Condition, Host, Json } from '../src/index.js';
 
@@ -73,4 +74,19 @@ test('check builds no trace, and a word then gets a bare trace of each condition
 test('a word that checks again with the same host joins the cycle check', () => {
   const again = host('false', { guards: { g: { word: 'again' } }, words: { again: { test: (_a, _b, h) => ({ holds: check({ guard: 'g' }, h).holds }) } } });
   assert.equal(check({ guard: 'g' }, again).holds, false);
+});
+
+// A host that never answers UNKNOWN gets what it got before the unknown was added: the same table, the same
+// answers, errors and traces, recorded from the module as it stood then, and no `unknown` anywhere.
+test('a host that never says unknown gets exactly the results it got before', () => {
+  const shape = (condition: Condition, missing: 'error' | 'false') => {
+    const keep = (key: string, value: unknown) => (key === 'condition' ? undefined : value);
+    return JSON.parse(JSON.stringify({ check: check(condition, host(missing)), trace: evaluate(condition, host(missing)) }, keep));
+  };
+  const now = Object.fromEntries(
+    (['error', 'false'] as const).map((missing) => [missing, Object.fromEntries(CASES.map(([name, condition]) => [name, shape(condition, missing)]))]),
+  );
+  const file = new URL('./results-before-unknown.json', import.meta.url);
+  assert.deepEqual(now, JSON.parse(readFileSync(file, 'utf8')));
+  assert.equal(JSON.stringify(now).includes('"unknown":'), false);
 });

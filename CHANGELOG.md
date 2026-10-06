@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.0 — 2026-10-06
+
+- `kdlet-guards`: a host may answer `UNKNOWN` for a reference that is not yet known; `undefined` still means absent, and `missing` is as it was. A condition that depends on it is false with `unknown: true`, in `check`'s result and in the trace, by Kleene's three-valued tables (`not` leaves it, `all` and `any` give way to a child that settles them); a guard function may answer `'unknown'` and a word's `test` may return `unknown: true`. A host that never says unknown sees no change, and `kdlet` never does.
+
 ## 0.1.1 — 2026-10-06
 
 - `kdlet-guards`: `check(condition, host)` answers `{ holds, errors }` without building a trace, and is now the one evaluator; `evaluate` wraps it and adds the trace. `kdlet` uses `check`, so a bundle of `kdlet`'s `evaluate` is about 450 characters smaller (about 115 gzipped). Nothing a file or a host can say changes.
