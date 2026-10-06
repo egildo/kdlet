@@ -1,6 +1,7 @@
 # Changelog
 
 ## 0.2.1 — 2026-10-06
+
 - `kdlet-guards`: `@bgotink/kdl` is an optional peer dependency instead of a dependency. Only `kdlet-guards/kdl` reads KDL; a host that only evaluates conditions installs nothing else.
 
 ## 0.2.0 — 2026-10-06
