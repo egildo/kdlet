@@ -161,6 +161,6 @@ All four are strict. «On or before» is `not` of `after`, «at least» is `not`
 
 **What does not compare.** An operand of the wrong kind (text that is not a date or an instant, a number where a time is due, a time where a number is due, a date against an instant, `days` with an instant) makes the comparison false, and `missing: 'error'` records it as it records an absent operand; `problems` reports what can be seen without a value (a literal of the wrong kind, `days` that is not a whole number, a list that is not two operands). An absent operand is false, under `missing` as for `is`. An `UNKNOWN` operand makes the comparison unknown, by the same tables as `is`.
 
-**In KDL**, the four are nodes whose two arguments are the operands, the left first, and `days` a property: `before (ref)approved (ref)requested days=5`. A reference argument is read as the module reads one in `is`.
+**In KDL**, the four are nodes whose two arguments are the operands, the left first, and `days` a property: `before (item)approved (item)requested days=5`. A reference argument is read as the module reads one in `is`.
 
 The four are built into the language, not registered words: a registered word cannot hold a reference among its arguments in KDL (§5), and order is as general as equality.
