@@ -28,7 +28,79 @@ export interface Observer {
 type Answer = boolean | 'unknown';
 
 const describe = (ref: Ref): string => `(${ref.from})${ref.field}`;
-const isRef = (operand: Operand): operand is Extract<Operand, { ref: Ref }> => typeof operand === 'object' && operand !== null;
+export const isRef = (operand: Operand): operand is Extract<Operand, { ref: Ref }> => typeof operand === 'object' && operand !== null;
+
+/** What a time operand is: a date is a day number, an instant is whole seconds since the epoch and the digits after the point. */
+type Time = { day: number } | { sec: number; frac: string };
+
+// RFC 3339 `full-date` and `date-time`. The pattern shapes, `dayOf` and the ranges validate; `Date.parse` is too lenient to.
+const DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
+const INSTANT = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?(?:Z|([+-])(\d{2}):(\d{2}))$/i;
+
+/** The day number of a real calendar date, or nothing for one that is not (`2026-02-30`). */
+function dayOf(year: number, month: number, date: number): number | undefined {
+  const t = new Date(0);
+  t.setUTCFullYear(year, month - 1, date);
+  return t.getUTCFullYear() === year && t.getUTCMonth() === month - 1 && t.getUTCDate() === date ? t.getTime() / 86400000 : undefined;
+}
+
+/** A date or an instant written as text, or nothing. An instant needs its offset; a second of 60 is a leap second and counts as the next minute's first. */
+function time(value: unknown): Time | undefined {
+  if (typeof value !== 'string') return undefined;
+  const date = DATE.exec(value);
+  if (date) {
+    const day = dayOf(+date[1], +date[2], +date[3]);
+    return day === undefined ? undefined : { day };
+  }
+  const at = INSTANT.exec(value);
+  if (!at) return undefined;
+  const day = dayOf(+at[1], +at[2], +at[3]);
+  const [hour, minute, second, offHour, offMinute] = [at[4], at[5], at[6], at[9] ?? '0', at[10] ?? '0'].map(Number);
+  if (day === undefined || hour > 23 || minute > 59 || second > 60 || offHour > 23 || offMinute > 59) return undefined;
+  const offset = (offHour * 60 + offMinute) * 60 * (at[8] === '-' ? -1 : 1);
+  return { sec: day * 86400 + hour * 3600 + minute * 60 + second - offset, frac: (at[7] ?? '').replace(/0+$/, '') };
+}
+
+/** Negative, zero or positive: `a` against `b` moved by `days`. Both are of one kind. */
+function difference(a: Time, b: Time, days: number): number {
+  if ('day' in a && 'day' in b) return a.day - (b.day + days);
+  if (!('sec' in a && 'sec' in b)) return NaN;
+  const width = Math.max(a.frac.length, b.frac.length);
+  const x = a.frac.padEnd(width, '0');
+  const y = b.frac.padEnd(width, '0');
+  return a.sec - b.sec || (x < y ? -1 : x > y ? 1 : 0);
+}
+
+/** A value as it is shown in a message. */
+const shown = (value: unknown): string =>
+  typeof value === 'string' ? JSON.stringify(value) : Array.isArray(value) ? 'a list' : typeof value === 'object' && value !== null ? 'an object' : typeof value === 'number' || typeof value === 'boolean' || value === null ? String(value) : `a ${typeof value}`;
+
+const ORDERING = ['before', 'after', 'less', 'more'] as const;
+type Ordering = (typeof ORDERING)[number];
+type Ordered = Extract<Condition, { before: unknown } | { after: unknown } | { less: unknown } | { more: unknown }>;
+
+export const isOrdered = (c: Condition): c is Ordered => ORDERING.some((w) => w in c);
+
+/** The word of an ordering condition, with what it was given. */
+export function ordering(c: Ordered): { word: Ordering; operands: unknown; days: unknown } {
+  const word = ORDERING.find((w) => w in c) as Ordering;
+  return { word, operands: (c as unknown as Record<string, unknown>)[word], days: (c as { days?: unknown }).days };
+}
+
+/** What is wrong with an ordering condition that its shape alone shows, or nothing. */
+export function orderingFault(word: Ordering, operands: unknown, days: unknown): string | undefined {
+  if (!Array.isArray(operands) || operands.length !== 2) return `"${word}" takes two operands, the left first`;
+  if (days === undefined) return undefined;
+  if (word === 'less' || word === 'more') return `"${word}" takes no days; they move the dates of "before" and "after"`;
+  return Number.isInteger(days) ? undefined : `"days" must be a whole number, not ${shown(days)}`;
+}
+
+/** Why a value cannot be an operand of an ordering word, or nothing. `subject` names the reference it came from. */
+export function misfit(word: Ordering, value: unknown, subject?: string): string | undefined {
+  const numbers = word === 'less' || word === 'more';
+  if (numbers ? typeof value === 'number' && Number.isFinite(value) : time(value)) return undefined;
+  return `${subject ? `${subject} (${shown(value)})` : shown(value)} is not ${numbers ? 'a number' : 'a date or an instant'}; "${word}" compares only ${numbers ? 'numbers' : 'those'}`;
+}
 
 /** A table's own entry, so nothing on `Object.prototype` counts. */
 export const own = <T>(table: Record<string, T> | undefined, name: string): T | undefined => (table && Object.hasOwn(table, name) ? table[name] : undefined);
@@ -84,6 +156,32 @@ export function check(condition: Condition, host: Host, observer?: Observer): { 
       const found = isRef(c.has) ? host.resolve(c.has.ref) : c.has;
       if (found === UNKNOWN) return 'unknown';
       return !(found === undefined || found === null || found === '' || (Array.isArray(found) && found.length === 0));
+    }
+    if (isOrdered(c)) {
+      const { word, operands, days } = ordering(c);
+      const fault = orderingFault(word, operands, days);
+      if (fault) return fail(fault, c);
+      const [l, r] = operands as [Operand, Operand];
+      // A value that does not compare makes the node false, and under `missing: 'error'` an error, at the operand when it is a reference.
+      const bad = (message: string, at?: Operand): false => (host.missing === 'error' ? fail(message, at && isRef(at) && at.loc ? at : c) : false);
+      const subject = (o: Operand) => (isRef(o) ? describe(o.ref) : undefined);
+      const left = operand(l);
+      if (left === UNKNOWN) return 'unknown';
+      if (left === undefined) return false;
+      const leftMisfit = misfit(word, left, subject(l));
+      if (leftMisfit) return bad(leftMisfit, l);
+      const right = operand(r);
+      if (right === UNKNOWN) return 'unknown';
+      if (right === undefined) return false;
+      const rightMisfit = misfit(word, right, subject(r));
+      if (rightMisfit) return bad(rightMisfit, r);
+      if (word === 'less' || word === 'more') return word === 'less' ? (left as number) < (right as number) : (left as number) > (right as number);
+      const a = time(left) as Time;
+      const b = time(right) as Time;
+      if ('day' in a !== 'day' in b) return bad(`"${word}" cannot compare a date with an instant; state both as dates or both as instants`);
+      if (days !== undefined && !('day' in a)) return bad(`"days" moves dates only; "${word}" was given instants`);
+      const apart = difference(a, b, typeof days === 'number' ? days : 0);
+      return word === 'before' ? apart < 0 : apart > 0;
     }
     if ('not' in c) {
       const answer = run(c.not);

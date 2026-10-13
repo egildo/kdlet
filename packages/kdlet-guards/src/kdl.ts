@@ -6,6 +6,7 @@
  *     has (post)summary
  *     not featured
  *     all { has (post)kind; is (post)kind featured }
+ *     before (item)approved (item)requested days=5
  *
  * The reader is tolerant on purpose: what it cannot accept is reported with
  * its line and column and left out, and reading carries on, so one run names
@@ -15,6 +16,7 @@
 
 import { Node, format, getLocation } from '@bgotink/kdl';
 import type { Entry } from '@bgotink/kdl';
+import { isOrdered, ordering, orderingFault } from './check.js';
 import type { Condition, Json, Loc, Operand, Primitive, Problem, Ref } from './model.js';
 
 export interface ReadOptions {
@@ -185,6 +187,30 @@ function readNode(run: Run, node: Node): Condition | undefined {
       if (!body) return undefined;
       return kind === 'all' ? { all: body, loc } : { any: body, loc };
     }
+    case 'before':
+    case 'after':
+    case 'less':
+    case 'more':
+      if (named) {
+        noBody(run, node, kind);
+        const days = props.find((e) => e.getName() === 'days');
+        noEntries(run, props.filter((e) => e !== days), kind);
+        const problems = run.sink.length;
+        const count = orderingFault(kind, args, undefined);
+        if (count) report(run, count, node);
+        const fault = days && orderingFault(kind, [null, null], days.getValue());
+        if (days && fault) report(run, fault, days);
+        else if (days && days.getTag() !== null) report(run, `"days" takes a plain number; the tag on ${show(days.getTag(), days.getValue())} means nothing here`, days);
+        const pair = args.length === 2 ? [operand(run, args[0], kind, true), operand(run, args[1], kind, false)] : [];
+        // Anything wrong would make the condition say something else: unreadable as a whole.
+        if (run.sink.length > problems) return undefined;
+        const operands = pair as [Operand, Operand];
+        if (kind === 'less') return { less: operands, loc };
+        if (kind === 'more') return { more: operands, loc };
+        const shift = days ? { days: days.getValue() as number } : {};
+        return kind === 'before' ? { before: operands, ...shift, loc } : { after: operands, ...shift, loc };
+      }
+    // falls through: under `under-not`, the ordering words are no words of a guard's body
     case 'guard':
       if (named) {
         noEntries(run, props, kind);
@@ -267,6 +293,13 @@ function toNode(c: Condition): Node {
     return node;
   }
   if ('has' in c) return withOperand(Node.create('has'), c.has);
+  if (isOrdered(c)) {
+    const { word, operands, days } = ordering(c);
+    const node = Node.create(word);
+    for (const o of operands as Operand[]) withOperand(node, o);
+    if (typeof days === 'number') node.setProperty('days', days);
+    return node;
+  }
   if ('not' in c) {
     const node = Node.create('not');
     if ('guard' in c.not) node.addArgument(c.not.guard);

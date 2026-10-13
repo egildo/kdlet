@@ -46,6 +46,14 @@ export type Condition =
   | { is: Operand; values: Operand[]; loc?: Loc }
   /** There is something: not absent, not null, not empty text, not an empty list. `0` and `false` are something. */
   | { has: Operand; loc?: Loc }
+  /** The first operand is earlier than the second, moved by `days` (dates only). Dates and instants never compare with each other. */
+  | { before: [Operand, Operand]; days?: number; loc?: Loc }
+  /** The first operand is later than the second, moved by `days` (dates only). */
+  | { after: [Operand, Operand]; days?: number; loc?: Loc }
+  /** The first operand is a smaller number than the second. Strict: equal is not less. */
+  | { less: [Operand, Operand]; loc?: Loc }
+  /** The first operand is a greater number than the second. Strict. */
+  | { more: [Operand, Operand]; loc?: Loc }
   | { not: Condition; loc?: Loc }
   /** Every child holds. `all: []` holds. */
   | { all: Condition[]; loc?: Loc }

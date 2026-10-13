@@ -140,7 +140,7 @@ Where the plan was silent or the build chose otherwise.
 
 ## 6 · Ordering: `before`, `after`, `less`, `more`
 
-Proposed 2026-10-13, for 0.3.0. The language compares only by equality (`is`). A host that keeps dates and amounts needs order: a date before a deadline, an approval within five days of a request, a count less than the one announced.
+Built in 0.3.0, 2026-10-13. The language compares only by equality (`is`). A host that keeps dates and amounts needs order: a date before a deadline, an approval within five days of a request, a count less than the one announced.
 
 **Two pairs of words, one for each kind of value.** `before` and `after` compare times; `less` and `more` compare numbers. Each takes two operands, the left first:
 
@@ -164,3 +164,19 @@ All four are strict. «On or before» is `not` of `after`, «at least» is `not`
 **In KDL**, the four are nodes whose two arguments are the operands, the left first, and `days` a property: `before (item)approved (item)requested days=5`. A reference argument is read as the module reads one in `is`.
 
 The four are built into the language, not registered words: a registered word cannot hold a reference among its arguments in KDL (§5), and order is as general as equality.
+
+### As built
+
+Where §6 was silent or the build chose.
+
+- **Dates and instants are parsed by pattern and by check, never by `Date.parse`.** A date is `YYYY-MM-DD` and must be a real day of the calendar (`2026-02-30` and `2027-02-29` are not; year `0000` to `9999`). An instant is `YYYY-MM-DDThh:mm:ss`, optionally a fraction of one or more digits, and an offset that is `Z` or `±hh:mm`. Hours are 00 to 23, minutes 00 to 59, offset hours 00 to 23, offset minutes 00 to 59. A second of 60 is accepted, as RFC 3339 has it for a leap second, and counts as the first second of the next minute. `T` and `Z` may be lower case, as the RFC's grammar allows; a space for the `T`, a missing offset, a missing seconds field, `+0200` and surrounding blanks are not read. `-00:00` is `Z`. Fractions are compared digit by digit, so the order is exact beyond the millisecond; `.5` and `.50` are one moment.
+- **A date is a day number, and `days` adds to it.** No `Date` of a time zone is involved: the date parts are turned into a count of days in UTC, `days` is added to the right operand's count, and the comparison is of counts.
+- **`days` is checked when the condition is evaluated as well as by `problems`.** A `days` that is not a whole number (`Number.isInteger`), a list that is not two operands and `days` on `less` or `more` are faults of the condition's shape, not of a value, so they are recorded as errors under both `missing` modes, as «not a condition» is. A value that does not compare (the wrong kind, a date against an instant, `days` with instants) is recorded only under `missing: 'error'`; under `'false'` the node is quietly false.
+- **Numbers are JSON numbers:** `typeof` number and finite. `NaN` and the infinities are not numbers, so `not` of `less` over them holds, as it does over any value that does not compare.
+- **The order of the questions.** The left operand is asked first. `UNKNOWN` ends the walk as unknown, absent ends it as false (an error under `'error'`, and the right is not asked), and a left of the wrong kind ends it as an error, false and not unknown. Then the right, in the same order. So an error wins over `UNKNOWN`, as in §5, and an `UNKNOWN` on the left is unknown whatever the right is.
+- **The messages.** Said at the operand when it is a reference with a position, otherwise at the condition. `(item)x ("soon") is not a date or an instant; "before" compares only those` (a literal is shown without the reference: `"soon" is not a date or an instant; …`), `(item)n ("7") is not a number; "less" compares only numbers`, `"before" cannot compare a date with an instant; state both as dates or both as instants`, `"days" moves dates only; "before" was given instants`, `"days" must be a whole number, not 1.5`, `"less" takes no days; they move the dates of "before" and "after"`, `"before" takes two operands, the left first`. An absent operand reads as it does for `is`. `problems` says the same words without the reference.
+- **`problems` looks at literals one by one.** A literal of the wrong kind for the word is reported; two literals that are a date and an instant are not, since only the pair shows it. A reference is never looked at.
+- **The trace is `is`'s:** `holds`, `unknown` when it applies, `condition` and `errors`; no `detail` and no children.
+- **In KDL the left operand must be a reference, as in `is`;** the right is a reference or a plain value. Dates and instants are quoted text in KDL (`"2026-10-13"`), because a bare word cannot start with a digit. `days` is a property whose value is a plain number; a tag on it, a second `days` or any other property is reported, and so is a body. A node with a fault in its operands or its `days` is left out whole, as an `is` is; one with only an extra property or body is still read. Writing gives `before (item)a (item)b days=5`, the operands as arguments in order and `days` after them.
+- **Under `guardNames: 'under-not'` the four are not words of a guard's body,** the way `guard` is not: that mode is the one kdlet's files are read in, and a file takes equality alone (the manual's *Parked*). The message that lists the words a body takes is unchanged, so under the default mode it does not name the four.
+- **A word a host registers under one of the four names is shadowed** in KDL, where the built-in is read first; a condition `{ word: 'before' }` built in code still reaches the host's word.

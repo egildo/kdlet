@@ -6,9 +6,9 @@
  * for a trace.
  */
 
-import { check, own } from './check.js';
+import { check, isOrdered, isRef, misfit, ordering, orderingFault, own } from './check.js';
 import type { Observer } from './check.js';
-import type { Condition, GuardError, Host, Trace } from './model.js';
+import type { Condition, GuardError, Host, Operand, Trace } from './model.js';
 
 /** Builds a trace from what a check reports. */
 function tracer(): Observer {
@@ -49,7 +49,17 @@ export function problems(condition: Condition, host: Pick<Host, 'guards' | 'word
   const found = new Set<string>();
   const checked = new Set<string>();
   const visit = (c: Condition, stack: string[]): void => {
-    if ('not' in c) visit(c.not, stack);
+    if (isOrdered(c)) {
+      const order = ordering(c);
+      const fault = orderingFault(order.word, order.operands, order.days);
+      if (fault) found.add(fault);
+      else {
+        for (const o of order.operands as Operand[]) {
+          const misfitting = isRef(o) ? undefined : misfit(order.word, o);
+          if (misfitting) found.add(misfitting);
+        }
+      }
+    } else if ('not' in c) visit(c.not, stack);
     else if ('all' in c) c.all.forEach((x) => visit(x, stack));
     else if ('any' in c) c.any.forEach((x) => visit(x, stack));
     else if ('guard' in c) {

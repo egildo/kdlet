@@ -85,7 +85,7 @@ A value is **missing** when the input or field is not there, or is `undefined`. 
 
 A condition is never written where it is used. It is defined once, by name, as a **guard**, and used by that name. XState names the same idea the same way.
 
-**Where guards live.** The guard language (its words, how a condition is evaluated, how a guard's body is read from KDL and written back) is the package [`kdlet-guards`](../packages/kdlet-guards), which kdlet uses and which a program can use without kdlet. kdlet keeps what belongs to files: which guards a body can see, what `(input)` and an item's name stand for, and the functions the host supplies. The rules below are the ones a kdlet file follows. The package allows more, which a file does not: `not` over a condition and not only over a name, a guard named anywhere in a condition, and words a host registers.
+**Where guards live.** The guard language (its words, how a condition is evaluated, how a guard's body is read from KDL and written back) is the package [`kdlet-guards`](../packages/kdlet-guards), which kdlet uses and which a program can use without kdlet. kdlet keeps what belongs to files: which guards a body can see, what `(input)` and an item's name stand for, and the functions the host supplies. The rules below are the ones a kdlet file follows. The package allows more, which a file does not: `not` over a condition and not only over a name, a guard named anywhere in a condition, the words of order `before`, `after`, `less` and `more`, and words a host registers.
 
 ```kdl
 each post in=(input)posts key=slug {

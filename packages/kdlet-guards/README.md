@@ -1,6 +1,6 @@
 <p align="center"><img src="https://codeberg.org/egildo/kdlet/raw/branch/main/docs/logo.svg" alt="kdlet" width="260"></p>
 
-**Named conditions as plain data: `is`, `has`, `not`, `all`, `any`, with the host answering for the rest.**
+**Named conditions as plain data: `is`, `has`, `not`, `all`, `any`, `before`, `after`, `less` and `more`, with the host answering for the rest.**
 
 The guard language of [kdlet](https://www.npmjs.com/package/kdlet), as a package of its own. A condition is JSON. A host resolves what it reads, supplies named guards and registers words of its own. Evaluating returns a trace: whether each node held, and what a word said about itself.
 
@@ -24,12 +24,15 @@ trace.holds; // true or false; trace.children holds each node's own result
 
 A host may answer `UNKNOWN` (exported by the package) for a reference that is not yet known; `undefined` still means there is nothing there. A condition that depends on it is neither true nor false: `holds` is `false` and the trace, and the result of `check`, carry `unknown: true`, by the three-valued tables of Kleene (SQL's `NULL` uses them): `not` leaves it, `all` and `any` give way to a child that settles them. A host that never answers `UNKNOWN` sees no change.
 
+`before` and `after` compare times, `less` and `more` compare numbers; all four are strict, and `not` gives the inclusive forms. A time is a date, `2026-10-13`, or an instant with its offset, `2026-10-13T17:00:00Z`, compared as the moment it names; a date never compares with an instant. `days` moves the right date by calendar days: `{ before: [approved, requested], days: 5 }` is "within five days". Text that is no date, a string for a number, or a date against an instant does not compare: the node is false, and under `missing: 'error'` an error.
+
 `kdlet-guards/kdl` reads a guard's body from [`@bgotink/kdl`](https://github.com/bgotink/kdl) nodes, with positions and problems, and writes a condition back as KDL text: `@bgotink/kdl` is an optional peer dependency: a host that uses `kdlet-guards/kdl` installs it; one that only evaluates conditions does not need it.
 
 ```kdl
 all {
     has (input)summary
     not draft
+    before (item)approved (item)requested days=5
 }
 ```
 
@@ -40,7 +43,7 @@ all {
 | `check(condition, host)` | A condition to `{ holds, errors }`, with no trace. The semantics live here; kdlet uses it, so a bundle that only checks does not carry the tracing |
 | `evaluate(condition, host)` | `check` with a trace. Never throws for what the condition says; an error is in the trace |
 | `errors(trace)` | Every error of a trace, with its position when the condition had one |
-| `problems(condition, host)` | An unknown guard or word, a word's own complaint, a cycle |
+| `problems(condition, host)` | An unknown guard or word, a word's own complaint, a cycle, an ordering word with a wrong operand list, a literal of the wrong kind or a bad `days` |
 | `readBody`, `readGuard`, `writeGuard` (from `kdlet-guards/kdl`) | KDL to conditions with positions and problems, and a condition to KDL text |
 | `readRef`, `plainWord`, `entriesOf`, `locOf`, `report`, … (from `kdlet-guards/kdl`) | The pieces of the reader, for a host that reads the rest of its KDL itself |
 

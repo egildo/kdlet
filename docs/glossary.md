@@ -30,7 +30,7 @@ The named things of kdlet, one entry each. The names are the code's names. Where
 
 **guard** — A condition defined once by name and used by that name. In code: item kind `guard`, whose body is `Condition[]` of `kdlet-guards`.
 
-**guard word** — One of `is`, `has`, `not`, `all` and `any`, written inside a guard's body. They belong to `kdlet-guards`. In code: `Condition`.
+**guard word** — One of `is`, `has`, `not`, `all` and `any`, written inside a guard's body. They belong to `kdlet-guards`, which also has the words of order `before`, `after`, `less` and `more`; a kdlet file does not write those. In code: `Condition`.
 
 **host** — The program that calls kdlet: it supplies the text, the inputs, the vocabulary, its guards and its definitions. In code: whatever calls `read` and `evaluate`. In `kdlet-guards` the host is the object that answers for a condition: it resolves references, supplies guards and registers words. kdlet builds one for each scope it evaluates in. In code: `Host` of `kdlet-guards`.
 

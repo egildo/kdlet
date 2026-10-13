@@ -1,6 +1,6 @@
 {
   "name": "kdlet-html",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "The HTML renderer for kdlet: a vocabulary and a function that writes a kdlet tree as an HTML string",
   "type": "module",
   "main": "dist/index.js",

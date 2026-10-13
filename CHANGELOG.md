@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0 — 2026-10-13
+
+- `kdlet-guards`: four words of order, built into the language beside `is`. `before` and `after` compare times and `less` and `more` compare numbers; all four are strict, so `not` gives the inclusive forms. A time is a date (`2026-10-13`, RFC 3339 `full-date`) or an instant (`2026-10-13T17:00:00Z` or with an offset, RFC 3339 `date-time`, compared as the moment it names), and a date never compares with an instant. `days` on `before` and `after` moves the right date by calendar days, for dates only. A value that does not compare (text that is no date, `"7"` for a number, a date against an instant) makes the node false and, under `missing: 'error'`, an error; an absent operand and `UNKNOWN` behave as for `is`. `problems` reports a wrong operand list, a literal of the wrong kind and `days` that is not a whole number or stands on `less` or `more`. In KDL they are nodes, `before (item)approved (item)requested days=5`, read and written back. `kdlet` files do not take the new words, and nothing else changes.
+
 ## 0.2.1 — 2026-10-06
 
 - `kdlet-guards`: `@bgotink/kdl` is an optional peer dependency instead of a dependency. Only `kdlet-guards/kdl` reads KDL; a host that only evaluates conditions installs nothing else.

@@ -1,6 +1,6 @@
 {
   "name": "kdlet",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "A small template language written in KDL: data, repetition and named conditions, with renderers that bring their own words",
   "type": "module",
   "main": "dist/index.js",
