@@ -137,3 +137,30 @@ Where the plan was silent or the build chose otherwise.
   kdlet agrees.
 - A word's arguments in KDL cannot hold a reference or a nested value. A word that needs them in KDL
   files will need a reading of its own.
+
+## 6 · Ordering: `before`, `after`, `less`, `more`
+
+Proposed 2026-10-13, for 0.3.0. The language compares only by equality (`is`). A host that keeps dates and amounts needs order: a date before a deadline, an approval within five days of a request, a count less than the one announced.
+
+**Two pairs of words, one for each kind of value.** `before` and `after` compare times; `less` and `more` compare numbers. Each takes two operands, the left first:
+
+```ts
+  | { before: [Operand, Operand]; days?: number }   // the left is earlier than the right, moved by `days`
+  | { after: [Operand, Operand]; days?: number }    // the left is later than the right, moved by `days`
+  | { less: [Operand, Operand] }                    // the left is a smaller number
+  | { more: [Operand, Operand] }                    // the left is a greater number
+```
+
+All four are strict. «On or before» is `not` of `after`, «at least» is `not` of `less`: the language already has `not`, so the inclusive forms need no word.
+
+**Two kinds of time, never compared with each other.** The canon is TC39's Temporal, which keeps a calendar date and an instant as different types. A **date** is RFC 3339's `full-date`, `2026-10-13`: a day, in no time zone. An **instant** is RFC 3339's `date-time` with its offset, `2026-10-13T17:00:00Z` or `2026-10-13T19:00:00+02:00`, compared as the moment it names, whatever offset it was written with. A date against an instant does not hold: a date has no time zone, so which instant it is cannot be said. A host that compares a deadline with a moment states the deadline as an instant.
+
+**`days` moves the right operand by whole days, and only a date.** `{ before: [approved, requested], days: 5 }` holds when `approved` is earlier than five days after `requested`: «within five days». A negative number moves it back: `{ before: [sent, deadline], days: -2 }` is «at least two days before the deadline». Days are calendar days, so a date plus one day is the next date, with no time zone involved. `days` on instants is not read: a day is not always 24 hours where clocks change, and that arithmetic is a later step.
+
+**Numbers are JSON numbers.** A string that looks like a number is not one: `"7"` is text.
+
+**What does not compare.** An operand of the wrong kind (text that is not a date or an instant, a number where a time is due, a time where a number is due, a date against an instant, `days` with an instant) makes the comparison false, and `missing: 'error'` records it as it records an absent operand; `problems` reports what can be seen without a value (a literal of the wrong kind, `days` that is not a whole number, a list that is not two operands). An absent operand is false, under `missing` as for `is`. An `UNKNOWN` operand makes the comparison unknown, by the same tables as `is`.
+
+**In KDL**, the four are nodes whose two arguments are the operands, the left first, and `days` a property: `before (ref)approved (ref)requested days=5`. A reference argument is read as the module reads one in `is`.
+
+The four are built into the language, not registered words: a registered word cannot hold a reference among its arguments in KDL (§5), and order is as general as equality.
