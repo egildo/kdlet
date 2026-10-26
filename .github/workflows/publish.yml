@@ -1,0 +1,40 @@
+# Runs on the GitHub mirror when Codeberg pushes a release tag (vX.Y.Z).
+# Publishes every package whose version is not yet on npm, by trusted
+# publishing (OIDC): no npm token is stored anywhere. Re-run it to retry.
+name: publish
+
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+      - name: Publish the packages not yet on npm
+        run: |
+          pnpm -r --filter "./packages/*" --workspace-concurrency=1 exec sh -c '
+            name=$(node -p "require(\"./package.json\").name")
+            version=$(node -p "require(\"./package.json\").version")
+            if npm view "$name@$version" version >/dev/null 2>&1; then
+              echo "$name@$version is already on npm"
+            else
+              tarball=$(pnpm pack --pack-destination "$RUNNER_TEMP" | tail -1)
+              npm publish "$tarball" --access public
+            fi'
